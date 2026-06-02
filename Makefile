@@ -1,4 +1,4 @@
-.PHONY: fmt fmt-check lint build test check
+.PHONY: fmt fmt-check lint build test helm-lint check
 
 fmt:
 	go fmt ./...
@@ -12,4 +12,7 @@ build:
 test:
 	go test ./...
 
-check: fmt lint test
+helm-lint:
+	helm lint chart/
+
+check: fmt lint test helm-lint
