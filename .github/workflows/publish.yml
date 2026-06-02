@@ -46,4 +46,4 @@ jobs:
         run: |
           VERSION="${{ steps.meta.outputs.version }}"
           helm package chart/ --version "${VERSION}" --app-version "${VERSION}"
-          helm push "vcib-${VERSION}.tgz" oci://ghcr.io/${{ github.repository_owner }}/vcib-chart
+          helm push "vcib-${VERSION}.tgz" oci://ghcr.io/${{ github.repository_owner }}/charts
