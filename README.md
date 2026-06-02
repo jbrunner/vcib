@@ -10,6 +10,14 @@ Varnish Cache Invalidation Broker (VCIB) is a lightweight broker that receives `
 4. Failed dispatches are retried every `RETRY_INTERVAL` up to `RETRY_COUNT` times.
 5. Outcomes are exposed via Prometheus metrics.
 
+## Installation
+
+```bash
+helm install vcib oci://ghcr.io/jbrunner/vcib --namespace vcib --create-namespace
+```
+
+See [chart/README.md](chart/README.md) for all Helm values.
+
 ## Usage
 
 ```bash
@@ -34,9 +42,11 @@ curl -X PURGE http://vcib:8080/path/to/resource \
 | `VCIB_CLIENT_AUTH` | Full `Authorization` header value clients must send to VCIB (e.g. `Bearer secret`). Empty = disabled. | `` |
 | `VCIB_FORWARD_HEADERS` | Comma-separated list of request headers to forward to varnish (supports wildcards, e.g. `Host,X-*`) | `Host` |
 | `VCIB_LISTEN_ADDR` | Address VCIB listens on for invalidation requests | `:8080` |
+| `VCIB_LOG_LEVEL` | Log level (`debug`, `info`, `warn`, `error`) | `info` |
 | `VCIB_MAX_CONCURRENT_DISPATCHES` | Maximum number of concurrent pod dispatch goroutines (semaphore) | `500` |
 | `VCIB_METRICS_ADDR` | Address for `/metrics` and `/healthz` | `:9090` |
 | `VCIB_POD_CACHE_TTL` | How long the Kubernetes pod list is cached before re-querying the API | `1s` |
+| `VCIB_REQUEST_TIMEOUT` | HTTP timeout for a single forwarding attempt to a Varnish pod | `5s` |
 | `VCIB_RETRY_COUNT` | Number of retries per pod before marking as failed | `3` |
 | `VCIB_RETRY_INTERVAL` | Wait time between retries | `10s` |
 | `VCIB_VARNISH_AUTH` | Full `Authorization` header value VCIB sends to Varnish backends (e.g. `Bearer foo`, `Basic foo:bar`). Empty = disabled. | `` |

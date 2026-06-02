@@ -16,19 +16,48 @@ serviceAccount:
   name: ""
 
 config:
+  # VCIB_VARNISH_NAMESPACE
+  # Kubernetes namespace of the Varnish pods.
   varnishNamespace: "default"
+  # VCIB_VARNISH_LABEL_SELECTOR
+  # Label selector for Varnish pods.
   varnishLabelSelector: "app=varnish"
+  # VCIB_VARNISH_PORT
+  # Port of the Varnish instances.
   varnishPort: "6081"
+  # VCIB_LISTEN_ADDR
+  # Address VCIB listens on for invalidation requests.
   listenAddr: ":8080"
+  # VCIB_METRICS_ADDR
+  # Address for /metrics and /healthz.
   metricsAddr: ":9090"
+  # VCIB_RETRY_INTERVAL
+  # Wait time between retries.
   retryInterval: "10s"
+  # VCIB_RETRY_COUNT
+  # Number of retries per pod before marking as failed.
   retryCount: "3"
+  # VCIB_REQUEST_TIMEOUT
+  # HTTP timeout for a single forwarding attempt to a Varnish pod.
   requestTimeout: "5s"
+  # VCIB_POD_CACHE_TTL
+  # How long the Kubernetes pod list is cached before re-querying the API.
+  podCacheTTL: "1s"
+  # VCIB_FORWARD_HEADERS
+  # Comma-separated list of request headers to forward to Varnish.
   forwardHeaders: "Host"
+  # VCIB_MAX_CONCURRENT_DISPATCHES
+  # Maximum number of concurrent pod dispatch goroutines.
   maxConcurrentDispatches: "500"
+  # VCIB_LOG_LEVEL
+  # Log level (debug, info, warn, error).
   logLevel: "info"
-  # Bearer token for client auth. Empty = disabled.
-  authToken: ""
+  # VCIB_CLIENT_AUTH
+  # Full Authorization header value clients must send (e.g. "Bearer secret"). Empty = disabled.
+  clientAuth: ""
+  # VCIB_VARNISH_AUTH
+  # Full Authorization header value VCIB sends to Varnish backends. Empty = disabled.
+  varnishAuth: ""
 
 podAnnotations: {}
 podLabels: {}

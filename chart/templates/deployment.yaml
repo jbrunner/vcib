@@ -65,15 +65,21 @@ spec:
               value: {{ .Values.config.retryCount | quote }}
             - name: VCIB_REQUEST_TIMEOUT
               value: {{ .Values.config.requestTimeout | quote }}
+            - name: VCIB_POD_CACHE_TTL
+              value: {{ .Values.config.podCacheTTL | quote }}
             - name: VCIB_FORWARD_HEADERS
               value: {{ .Values.config.forwardHeaders | quote }}
             - name: VCIB_MAX_CONCURRENT_DISPATCHES
               value: {{ .Values.config.maxConcurrentDispatches | quote }}
             - name: VCIB_LOG_LEVEL
               value: {{ .Values.config.logLevel | quote }}
-            {{- if .Values.config.authToken }}
-            - name: VCIB_AUTH_TOKEN
-              value: {{ .Values.config.authToken | quote }}
+            {{- if .Values.config.clientAuth }}
+            - name: VCIB_CLIENT_AUTH
+              value: {{ .Values.config.clientAuth | quote }}
+            {{- end }}
+            {{- if .Values.config.varnishAuth }}
+            - name: VCIB_VARNISH_AUTH
+              value: {{ .Values.config.varnishAuth | quote }}
             {{- end }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
