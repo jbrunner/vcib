@@ -1,0 +1,27 @@
+{{- if .Values.rbac.create -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "vcib.fullname" . }}
+  labels:
+    {{- include "vcib.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "vcib.fullname" . }}
+  labels:
+    {{- include "vcib.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "vcib.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "vcib.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

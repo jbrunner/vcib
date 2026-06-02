@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vcib.fullname" . }}
+  labels:
+    {{- include "vcib.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "vcib.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "vcib.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ include "vcib.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- range .Values.topologySpreadConstraints }}
+        - maxSkew: {{ .maxSkew }}
+          topologyKey: {{ .topologyKey }}
+          whenUnsatisfiable: {{ .whenUnsatisfiable }}
+          labelSelector:
+            matchLabels:
+              {{- include "vcib.selectorLabels" $ | nindent 14 }}
+        {{- end }}
+      {{- end }}
+      containers:
+        - name: vcib
+          image: {{ include "vcib.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+          env:
+            - name: VCIB_VARNISH_NAMESPACE
+              value: {{ .Values.config.varnishNamespace | quote }}
+            - name: VCIB_VARNISH_LABEL_SELECTOR
+              value: {{ .Values.config.varnishLabelSelector | quote }}
+            - name: VCIB_VARNISH_PORT
+              value: {{ .Values.config.varnishPort | quote }}
+            - name: VCIB_LISTEN_ADDR
+              value: {{ .Values.config.listenAddr | quote }}
+            - name: VCIB_METRICS_ADDR
+              value: {{ .Values.config.metricsAddr | quote }}
+            - name: VCIB_RETRY_INTERVAL
+              value: {{ .Values.config.retryInterval | quote }}
+            - name: VCIB_RETRY_COUNT
+              value: {{ .Values.config.retryCount | quote }}
+            - name: VCIB_REQUEST_TIMEOUT
+              value: {{ .Values.config.requestTimeout | quote }}
+            - name: VCIB_FORWARD_HEADERS
+              value: {{ .Values.config.forwardHeaders | quote }}
+            - name: VCIB_MAX_CONCURRENT_DISPATCHES
+              value: {{ .Values.config.maxConcurrentDispatches | quote }}
+            - name: VCIB_LOG_LEVEL
+              value: {{ .Values.config.logLevel | quote }}
+            {{- if .Values.config.authToken }}
+            - name: VCIB_AUTH_TOKEN
+              value: {{ .Values.config.authToken | quote }}
+            {{- end }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: metrics
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 15
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

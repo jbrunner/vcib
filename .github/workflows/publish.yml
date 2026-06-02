@@ -38,3 +38,12 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: VERSION=${{ steps.meta.outputs.version }}
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Package and push Helm chart
+        run: |
+          VERSION="${{ steps.meta.outputs.version }}"
+          helm package chart/ --version "${VERSION}" --app-version "${VERSION}"
+          helm push "vcib-${VERSION}.tgz" oci://ghcr.io/${{ github.repository_owner }}/vcib-chart

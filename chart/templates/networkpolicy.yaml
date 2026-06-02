@@ -1,0 +1,76 @@
+{{- if .Values.networkPolicy.enabled -}}
+{{- $hasIngress := or .Values.networkPolicy.ingress.http.enabled .Values.networkPolicy.ingress.metrics.enabled }}
+{{- $hasEgress := or .Values.networkPolicy.egress.apiServer.enabled .Values.networkPolicy.egress.varnish.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "vcib.fullname" . }}
+  labels:
+    {{- include "vcib.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "vcib.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    {{- if $hasIngress }}
+    - Ingress
+    {{- end }}
+    {{- if $hasEgress }}
+    - Egress
+    {{- end }}
+  {{- if $hasIngress }}
+  ingress:
+    {{- if .Values.networkPolicy.ingress.http.enabled }}
+    - ports:
+        - protocol: TCP
+          port: 8080
+      {{- with .Values.networkPolicy.ingress.http.from }}
+      from:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.networkPolicy.ingress.metrics.enabled }}
+    - ports:
+        - protocol: TCP
+          port: 9090
+      {{- with .Values.networkPolicy.ingress.metrics.from }}
+      from:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+  {{- if $hasEgress }}
+  egress:
+    {{- if .Values.networkPolicy.egress.apiServer.enabled }}
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: TCP
+          port: 443
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 6443
+    {{- end }}
+    {{- if .Values.networkPolicy.egress.varnish.enabled }}
+    - to:
+        {{- if or .Values.networkPolicy.egress.varnish.namespaceSelector .Values.networkPolicy.egress.varnish.podSelector }}
+        - {{- with .Values.networkPolicy.egress.varnish.namespaceSelector }}
+          namespaceSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.networkPolicy.egress.varnish.podSelector }}
+          podSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- else }}
+        - podSelector: {}
+        {{- end }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.config.varnishPort | int }}
+    {{- end }}
+  {{- end }}
+{{- end }}

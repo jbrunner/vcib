@@ -1,0 +1,18 @@
+VCIB {{ .Chart.AppVersion }} has been deployed.
+
+  Namespace:  {{ .Release.Namespace }}
+  Release:    {{ .Release.Name }}
+  Replicas:   {{ .Values.replicaCount }}
+
+The broker listens on {{ .Values.config.listenAddr }} and forwards PURGE/BAN requests
+to Varnish pods matching selector "{{ .Values.config.varnishLabelSelector }}"
+in namespace "{{ .Values.config.varnishNamespace }}".
+
+{{- if .Values.serviceMonitor.enabled }}
+
+A ServiceMonitor has been created for Prometheus scraping.
+{{- end }}
+{{- if .Values.networkPolicy.enabled }}
+
+A NetworkPolicy is active — only explicitly allowed traffic is permitted.
+{{- end }}

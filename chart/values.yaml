@@ -1,0 +1,104 @@
+replicaCount: 2
+
+image:
+  repository: ghcr.io/jbrunner/vcib
+  pullPolicy: IfNotPresent
+  # Defaults to .Chart.AppVersion when empty.
+  tag: ""
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  # Defaults to fullname when empty.
+  name: ""
+
+config:
+  varnishNamespace: "default"
+  varnishLabelSelector: "app=varnish"
+  varnishPort: "6081"
+  listenAddr: ":8080"
+  metricsAddr: ":9090"
+  retryInterval: "10s"
+  retryCount: "3"
+  requestTimeout: "5s"
+  forwardHeaders: "Host"
+  maxConcurrentDispatches: "500"
+  logLevel: "info"
+  # Bearer token for client auth. Empty = disabled.
+  authToken: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    memory: 128Mi
+
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: DoNotSchedule
+  - maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: ScheduleAnyway
+
+service:
+  type: ClusterIP
+  port: 80
+  metricsPort: 9090
+  annotations: {}
+  labels: {}
+
+rbac:
+  create: true
+
+networkPolicy:
+  enabled: false
+  ingress:
+    http:
+      # Allow ingress on port 8080 (PURGE/BAN endpoint).
+      enabled: true
+      # List of from-peers (namespaceSelector/podSelector). Empty = from anywhere.
+      from: []
+    metrics:
+      # Allow ingress on port 9090 (Prometheus scrape).
+      enabled: true
+      # List of from-peers (namespaceSelector/podSelector). Empty = from anywhere.
+      from: []
+  egress:
+    apiServer:
+      # Allow egress to the Kubernetes API server (port 443 in kube-system, port 6443 anywhere).
+      enabled: true
+    varnish:
+      # Allow egress to Varnish pods. Port is taken from config.varnishPort.
+      enabled: true
+      # namespaceSelector for the Varnish namespace. Empty = same namespace.
+      namespaceSelector: {}
+      # podSelector for Varnish pods. Empty = any pod on that port.
+      podSelector: {}
+
+serviceMonitor:
+  enabled: false
+  interval: 30s
+  path: /metrics
+  # Additional labels to add to the ServiceMonitor (e.g. for Prometheus operator selectors).
+  additionalLabels: {}

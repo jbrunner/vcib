@@ -1,0 +1,17 @@
+apiVersion: v2
+name: vcib
+description: Varnish Cache Invalidation Broker — forwards PURGE/BAN requests to all ready Varnish pods in a Kubernetes namespace.
+type: application
+version: 0.0.0
+appVersion: 0.0.0
+keywords:
+  - varnish
+  - cache
+  - invalidation
+  - purge
+  - ban
+home: https://github.com/jbrunner/vcib
+sources:
+  - https://github.com/jbrunner/vcib
+maintainers:
+  - name: jbrunner
