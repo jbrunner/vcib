@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/jbrunner/vcib/compare/v0.2.0...v0.2.1) (2026-06-02)
+
+
+### Bug Fixes
+
+* **ci:** use PAT for release-please to trigger publish workflow ([ec657d2](https://github.com/jbrunner/vcib/commit/ec657d2ae36e986d7024f48b8b38943fcefff20c))
+
 ## [0.2.0](https://github.com/jbrunner/vcib/compare/v0.1.0...v0.2.0) (2026-06-02)
 
 
