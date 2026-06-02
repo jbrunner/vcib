@@ -82,7 +82,7 @@ func TestServeHTTP_Accepted(t *testing.T) {
 			h := handler.New(disp, met)
 
 			req := newRequest(t, testCase.method, testCase.path)
-			req.Header.Set("Host", "example.com")
+			req.Host = "example.com" // simulate real HTTP server: Host is in req.Host, not req.Header
 			rec := httptest.NewRecorder()
 			h.ServeHTTP(rec, req)
 
@@ -100,6 +100,10 @@ func TestServeHTTP_Accepted(t *testing.T) {
 
 			if disp.calls[0].uri != testCase.path {
 				t.Errorf("dispatch uri = %q, want %q", disp.calls[0].uri, testCase.path)
+			}
+
+			if got := disp.calls[0].headers.Get("Host"); got != "example.com" {
+				t.Errorf("Host header not forwarded: got %q, want %q", got, "example.com")
 			}
 
 			count := testutil.ToFloat64(met.InvalidationRequestsTotal.WithLabelValues(testCase.method))

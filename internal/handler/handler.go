@@ -39,5 +39,9 @@ func (h *Handler) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 
 	// Clone headers so the dispatcher goroutine has a stable copy after this
 	// handler returns and the request is recycled by the server.
-	h.dispatcher.Dispatch(req.Method, req.URL.RequestURI(), req.Header.Clone())
+	headers := req.Header.Clone()
+	if req.Host != "" {
+		headers.Set("Host", req.Host)
+	}
+	h.dispatcher.Dispatch(req.Method, req.URL.RequestURI(), headers)
 }
