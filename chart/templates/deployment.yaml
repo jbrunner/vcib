@@ -73,13 +73,23 @@ spec:
               value: {{ .Values.config.maxConcurrentDispatches | quote }}
             - name: VCIB_LOG_LEVEL
               value: {{ .Values.config.logLevel | quote }}
-            {{- if .Values.config.clientAuth }}
+            {{- with .Values.config.clientAuthSecretRef }}
+            {{- if .name }}
             - name: VCIB_CLIENT_AUTH
-              value: {{ .Values.config.clientAuth | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .name | quote }}
+                  key: {{ .key | quote }}
             {{- end }}
-            {{- if .Values.config.varnishAuth }}
+            {{- end }}
+            {{- with .Values.config.varnishAuthSecretRef }}
+            {{- if .name }}
             - name: VCIB_VARNISH_AUTH
-              value: {{ .Values.config.varnishAuth | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .name | quote }}
+                  key: {{ .key | quote }}
+            {{- end }}
             {{- end }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}

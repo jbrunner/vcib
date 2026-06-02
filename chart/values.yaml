@@ -53,11 +53,13 @@ config:
   # Log level (debug, info, warn, error).
   logLevel: "info"
   # VCIB_CLIENT_AUTH
-  # Full Authorization header value clients must send (e.g. "Bearer secret"). Empty = disabled.
-  clientAuth: ""
+  # Kubernetes Secret reference for the Authorization header clients must send. Empty = disabled.
+  # Example: { name: "vcib-secrets", key: "client-auth" }
+  clientAuthSecretRef: {}
   # VCIB_VARNISH_AUTH
-  # Full Authorization header value VCIB sends to Varnish backends. Empty = disabled.
-  varnishAuth: ""
+  # Kubernetes Secret reference for the Authorization header sent to Varnish backends. Empty = disabled.
+  # Example: { name: "vcib-secrets", key: "varnish-auth" }
+  varnishAuthSecretRef: {}
 
 podAnnotations: {}
 podLabels: {}

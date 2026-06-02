@@ -19,9 +19,33 @@ Override values inline:
 ```bash
 helm install vcib oci://ghcr.io/jbrunner/vcib \
   --namespace vcib --create-namespace \
-  --set config.varnishNamespace=production \
-  --set config.clientAuth="Bearer mysecret"
+  --set config.varnishNamespace=production
 ```
+
+## Authentication
+
+By default, client and Varnish auth are disabled. To enable them, create a Kubernetes Secret **before** installing the chart:
+
+```bash
+kubectl create secret generic vcib-auth \
+  --from-literal=client-auth="Bearer my-client-token" \
+  --from-literal=varnish-auth="Bearer my-varnish-token" \
+  --namespace vcib
+```
+
+Then reference it in `values.yaml`:
+
+```yaml
+config:
+  clientAuthSecretRef:
+    name: vcib-auth
+    key: client-auth
+  varnishAuthSecretRef:
+    name: vcib-auth
+    key: varnish-auth
+```
+
+The Secret value must be the full `Authorization` header (e.g. `Bearer <token>`).
 
 ## Configuration
 
@@ -43,8 +67,8 @@ helm install vcib oci://ghcr.io/jbrunner/vcib \
 | `config.forwardHeaders` | `VCIB_FORWARD_HEADERS` | Comma-separated request headers to forward to Varnish | `Host` |
 | `config.maxConcurrentDispatches` | `VCIB_MAX_CONCURRENT_DISPATCHES` | Maximum number of concurrent pod dispatch goroutines | `500` |
 | `config.logLevel` | `VCIB_LOG_LEVEL` | Log level (`debug`, `info`, `warn`, `error`) | `info` |
-| `config.clientAuth` | `VCIB_CLIENT_AUTH` | Full `Authorization` header value clients must send (e.g. `Bearer secret`). Empty = disabled. | `""` |
-| `config.varnishAuth` | `VCIB_VARNISH_AUTH` | Full `Authorization` header value VCIB sends to Varnish backends. Empty = disabled. | `""` |
+| `config.clientAuthSecretRef` | `VCIB_CLIENT_AUTH` | Kubernetes Secret ref (`{name, key}`) for the `Authorization` header clients must send. Empty = disabled. | `{}` |
+| `config.varnishAuthSecretRef` | `VCIB_VARNISH_AUTH` | Kubernetes Secret ref (`{name, key}`) for the `Authorization` header sent to Varnish backends. Empty = disabled. | `{}` |
 | `rbac.create` | | Create `Role` and `RoleBinding` for pod discovery | `true` |
 | `serviceAccount.create` | | Create a dedicated `ServiceAccount` | `true` |
 | `serviceMonitor.enabled` | | Create a Prometheus Operator `ServiceMonitor` | `false` |
