@@ -116,7 +116,7 @@ func newInvalidationServer(cfg *config.Config, disp *dispatcher.Dispatcher, met 
 
 	return &http.Server{
 		Addr:              cfg.ListenAddr,
-		Handler:           middleware.Auth(cfg.ClientAuth)(middleware.Logging(mux)),
+		Handler:           middleware.Logging(middleware.Auth(cfg.ClientAuth)(mux)),
 		ReadHeaderTimeout: readHeaderTimeout,
 	}
 }
