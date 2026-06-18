@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/jbrunner/vcib/compare/v0.2.1...v0.2.2) (2026-06-18)
+
+
+### Bug Fixes
+
+* **middleware:** log requests rejected by auth middleware ([d6db930](https://github.com/jbrunner/vcib/commit/d6db93087729a1f00e25e5174507bae5650600c4))
+
 ## [0.2.1](https://github.com/jbrunner/vcib/compare/v0.2.0...v0.2.1) (2026-06-02)
 
 
