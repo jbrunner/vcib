@@ -6,6 +6,9 @@ updates:
       interval: weekly
     assignees:
       - jbrunner
+    commit-message:
+      prefix: fix
+      include: scope
 
   - package-ecosystem: github-actions
     directory: /
@@ -20,3 +23,6 @@ updates:
       interval: weekly
     assignees:
       - jbrunner
+    commit-message:
+      prefix: fix
+      include: scope
